@@ -120,7 +120,7 @@
           "builder": "@nrwl/node:build",
           "options": {
             "outputPath": "dist/apps/api",
-            "main": "apps/api/src/main.ts",
+            "main": "apps/api/src/main.js",
             "tsConfig": "apps/api/tsconfig.app.json",
             "assets": ["apps/api/src/assets"]
           },
@@ -131,8 +131,8 @@
               "inspect": false,
               "fileReplacements": [
                 {
-                  "replace": "apps/api/src/environments/environment.ts",
-                  "with": "apps/api/src/environments/environment.prod.ts"
+                  "replace": "apps/api/src/environments/environment.js",
+                  "with": "apps/api/src/environments/environment.prod.js"
                 }
               ]
             }
