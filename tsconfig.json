@@ -15,6 +15,11 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
+    "checkJs": true,
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
     "paths": {
       "@inventory/api-interfaces": ["libs/api-interfaces/src/index.ts"]
     }
