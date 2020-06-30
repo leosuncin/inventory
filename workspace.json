@@ -12,8 +12,8 @@
           "options": {
             "outputPath": "dist/apps/frontend",
             "index": "apps/frontend/src/index.html",
-            "main": "apps/frontend/src/main.tsx",
-            "polyfills": "apps/frontend/src/polyfills.ts",
+            "main": "apps/frontend/src/main.js",
+            "polyfills": "apps/frontend/src/polyfills.js",
             "tsConfig": "apps/frontend/tsconfig.app.json",
             "assets": [
               "apps/frontend/src/favicon.ico",
@@ -27,8 +27,8 @@
             "production": {
               "fileReplacements": [
                 {
-                  "replace": "apps/frontend/src/environments/environment.ts",
-                  "with": "apps/frontend/src/environments/environment.prod.ts"
+                  "replace": "apps/frontend/src/environments/environment.js",
+                  "with": "apps/frontend/src/environments/environment.prod.js"
                 }
               ],
               "optimization": true,

@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-import { Message } from '@inventory/api-interfaces';
-
 export const App = () => {
-  const [m, setMessage] = useState<Message>({ message: '' });
+  const [m, setMessage] = useState({ message: '' });
 
   useEffect(() => {
     fetch('/api')
@@ -18,6 +16,7 @@ export const App = () => {
         <img
           width="450"
           src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png"
+          alt="NX logo"
         />
       </div>
       <div>{m.message}</div>
