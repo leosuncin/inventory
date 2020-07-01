@@ -7,4 +7,5 @@ interface CategoryDocument extends Document {
 
 const Category: Model<CategoryDocument>;
 
+export const CATEGORY_SCHEMA_KEY: string;
 export default Category;
