@@ -36,6 +36,39 @@ export const fetchCategories = createAsyncThunk(
 
       return json;
     } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  },
+);
+/**
+ * @type import('@reduxjs/toolkit').AsyncThunk<any, {name: string; color: string;}, any>
+ */
+export const saveCategory = createAsyncThunk(
+  'categories/saveStatus',
+  async (data, thunkAPI) => {
+    try {
+      const resp = await fetch('/api/categories', {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        mode: 'cors',
+      });
+
+      if (resp.status === 201) return resp.json();
+      else {
+        try {
+          const result = await resp.text();
+          const error = JSON.parse(result);
+
+          return thunkAPI.rejectWithValue(error.message);
+        } catch (error) {
+          return thunkAPI.rejectWithValue(resp.statusText);
+        }
+      }
+    } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
   },
@@ -64,6 +97,17 @@ export const categoriesSlice = createSlice({
       .addCase(fetchCategories.rejected, (state, action) => {
         state.loadingStatus = 'error';
         state.error = action.error.message;
+      })
+      .addCase(saveCategory.pending, state => {
+        state.loadingStatus = 'saving';
+      })
+      .addCase(saveCategory.fulfilled, (state, action) => {
+        categoriesAdapter.addOne(state, action.payload);
+        state.loadingStatus = 'saved';
+      })
+      .addCase(saveCategory.rejected, (state, action) => {
+        state.loadingStatus = 'error';
+        state.error = action.error;
       });
   },
 });
