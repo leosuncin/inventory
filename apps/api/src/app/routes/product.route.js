@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { NOT_FOUND, getStatusText } from 'http-status-codes';
+import { CREATED, NOT_FOUND, getStatusText } from 'http-status-codes';
 
 import { handleValidationError, verifyObjectID } from '../middleware';
 import Product from '../models/product.model';
@@ -28,7 +28,7 @@ router
       const product = new Product(req.body);
       await product.save();
 
-      res.json(product);
+      res.status(CREATED).json(product);
     } catch (error) {
       next(error);
     }

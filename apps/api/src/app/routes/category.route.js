@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { NOT_FOUND, getStatusText } from 'http-status-codes';
+import { CREATED, NOT_FOUND, getStatusText } from 'http-status-codes';
 
 import { handleValidationError, verifyObjectID } from '../middleware';
 import {
@@ -21,7 +21,7 @@ router
     try {
       const category = await createCategory(req.body);
 
-      res.json(category);
+      res.status(CREATED).json(category);
     } catch (error) {
       next(error);
     }

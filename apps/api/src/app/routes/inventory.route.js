@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { NOT_FOUND, getStatusText } from 'http-status-codes';
+import { CREATED, NOT_FOUND, getStatusText } from 'http-status-codes';
 
 import { handleValidationError, verifyObjectID } from '../middleware';
 import Inventory from '../models/inventory.model';
@@ -29,7 +29,7 @@ router
 
       await inventory.save();
 
-      res.json(inventory);
+      res.status(CREATED).json(inventory);
     } catch (error) {
       next(error);
     }
