@@ -1,8 +1,11 @@
+import util from 'util';
+
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import express from 'express';
 import paginate from 'express-paginate';
 import helmet from 'helmet';
+import mongoose from 'mongoose';
 import morgan from 'morgan';
 
 import {
@@ -30,8 +33,35 @@ function listen() {
     })
     .on('error', console.error);
 }
+function connect() {
+  mongoose.connection
+    .on('error', () => {
+      throw new Error(
+        `Unable to connect to database: ${process.env.MONGODB_URL}`,
+      );
+    })
+    .on('disconnected', connect)
+    .once('open', listen);
 
-listen();
+  if (process.env.NODE_ENV === 'development') {
+    mongoose.set('debug', (collectionName, method, query, doc) => {
+      console.debug(
+        `🙈🙉🙊 ${collectionName}.${method}`,
+        util.inspect(query, false, 20),
+        doc,
+      );
+    });
+  }
+
+  return mongoose.connect(process.env.MONGODB_URL, {
+    keepAlive: true,
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useUnifiedTopology: true,
+  });
+}
+
+connect();
 
 const greeting = { message: 'Welcome to api!' };
 
