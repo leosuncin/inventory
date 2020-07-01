@@ -1,26 +1,73 @@
-import React, { useEffect, useState } from 'react';
+import './app.css';
 
+import React from 'react';
+import { Container, Navbar, Row } from 'react-bootstrap';
+import { Link, BrowserRouter as Router, Switch } from 'react-router-dom';
+
+import CategoryIcon from '../components/icons/category-icon';
+import HomeIcon from '../components/icons/home-icon';
+import ProductIcon from '../components/icons/product-icon';
+import StackIcon from '../components/icons/stack-icon';
+
+/**
+ * @type React.FC
+ */
 export const App = () => {
-  const [m, setMessage] = useState({ message: '' });
-
-  useEffect(() => {
-    fetch('/api')
-      .then(r => r.json())
-      .then(setMessage);
-  }, []);
-
   return (
-    <>
-      <div style={{ textAlign: 'center' }}>
-        <h1>Welcome to frontend!</h1>
-        <img
-          width="450"
-          src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png"
-          alt="NX logo"
-        />
-      </div>
-      <div>{m.message}</div>
-    </>
+    <Router>
+      <Navbar
+        bg="dark"
+        variant="dark"
+        sticky="top"
+        className="flex-md-nowrap p-0 shadow"
+      >
+        <Link to="/" className="navbar-brand col-md-3 col-lg-2 mr-0 px-3">
+          <HomeIcon />
+          Inventario
+        </Link>
+        <Navbar.Toggle label="Toggle navigation" />
+      </Navbar>
+      <Container fluid>
+        <Row>
+          <nav className="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+            <div className="sidebar-sticky pt-3">
+              <ul className="nav flex-column">
+                <li className="nav-item">
+                  <Link className="nav-link" to="/categories">
+                    <CategoryIcon />
+                    Categorias de producto
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/">
+                    <ProductIcon />
+                    Inventario de productos
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/buy">
+                    <StackIcon />
+                    Ingreso de producto
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/sell">
+                    <ProductIcon />
+                    Salida de producto
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </nav>
+
+          <main role="main" className="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+              <Switch></Switch>
+            </div>
+          </main>
+        </Row>
+      </Container>
+    </Router>
   );
 };
 

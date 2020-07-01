@@ -28,6 +28,7 @@
   "private": true,
   "dependencies": {
     "body-parser": "1.19.0",
+    "bootstrap": "4.5.0",
     "cors": "2.8.5",
     "document-register-element": "1.13.1",
     "express": "4.17.1",
@@ -40,7 +41,9 @@
     "mongoose-unique-validator": "2.0.3",
     "morgan": "1.10.0",
     "react": "16.13.1",
-    "react-dom": "16.13.1"
+    "react-bootstrap": "1.0.1",
+    "react-dom": "16.13.1",
+    "react-router-dom": "5.2.0"
   },
   "devDependencies": {
     "@babel/core": "7.9.6",
@@ -71,7 +74,9 @@
     "@types/morgan": "1.9.1",
     "@types/node": "~8.9.4",
     "@types/react": "16.9.38",
+    "@types/react-bootstrap": "1.0.1",
     "@types/react-dom": "16.9.8",
+    "@types/react-router-dom": "5.1.5",
     "@typescript-eslint/eslint-plugin": "2.19.2",
     "@typescript-eslint/parser": "2.19.2",
     "babel-jest": "25.1.0",
