@@ -9,7 +9,9 @@ import { environment } from '../../environments/environment';
  * @param {Object} req
  * @param {Object} res
  */
-export function handleServerError(err, req, res) {
+export function handleServerError(err, req, res, next) {
+  if (!err) return next();
+
   console.error(`[${req.method}] ${req.url}`, err.stack);
 
   res.status(INTERNAL_SERVER_ERROR).json({
