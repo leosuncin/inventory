@@ -12,6 +12,8 @@ import morgan from 'morgan';
 
 import { handleServerError } from './app/middleware';
 import categoryRoutes from './app/routes/category.route';
+import inventoryRoutes from './app/routes/inventory.route';
+import productRoutes from './app/routes/product.route';
 import {
   corsOptions,
   morganFormat,
@@ -73,6 +75,8 @@ app.get('/api', (req, res) => {
   res.send(greeting);
 });
 app.use('/api/categories', categoryRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/inventories', inventoryRoutes);
 app.use(handleServerError);
 
 export default app;
