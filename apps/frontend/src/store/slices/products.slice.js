@@ -1,0 +1,110 @@
+import {
+  createAsyncThunk,
+  createEntityAdapter,
+  createSelector,
+  createSlice,
+} from '@reduxjs/toolkit';
+
+export const PRODUCTS_FEATURE_KEY = 'products';
+export const productsAdapter = createEntityAdapter();
+/**
+ * Export an effect using createAsyncThunk from
+ * the Redux Toolkit: https://redux-toolkit.js.org/api/createAsyncThunk
+ *
+ * e.g.
+ * ```
+ * import React, { useEffect } from 'react';
+ * import { useDispatch } from 'react-redux';
+ *
+ * // ...
+ *
+ * const dispatch = useDispatch();
+ * useEffect(() => {
+ *   dispatch(fetchProducts())
+ * }, [dispatch]);
+ * ```
+ */
+export const fetchProducts = createAsyncThunk(
+  'products/fetchStatus',
+  async (_, thunkAPI) => {
+    try {
+      const resp = await fetch('/api/products');
+      const json = resp.json();
+
+      return json;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
+export const initialProductsState = productsAdapter.getInitialState({
+  loadingStatus: 'not loaded',
+  error: null,
+});
+export const productsSlice = createSlice({
+  name: PRODUCTS_FEATURE_KEY,
+  initialState: initialProductsState,
+  reducers: {
+    add: productsAdapter.addOne,
+    remove: productsAdapter.removeOne,
+    // ...
+  },
+  extraReducers: builder => {
+    builder
+      .addCase(fetchProducts.pending, state => {
+        state.loadingStatus = 'loading';
+      })
+      .addCase(fetchProducts.fulfilled, (state, action) => {
+        productsAdapter.setAll(state, action.payload.docs);
+        state.loadingStatus = 'loaded';
+      })
+      .addCase(fetchProducts.rejected, (state, action) => {
+        state.loadingStatus = 'error';
+        state.error = action.error.message;
+      });
+  },
+});
+/*
+ * Export reducer for store configuration.
+ */
+export const productsReducer = productsSlice.reducer;
+/*
+ * Export action creators to be dispatched. For use with the `useDispatch` hook.
+ *
+ * e.g.
+ * ```
+ * import React, { useEffect } from 'react';
+ * import { useDispatch } from 'react-redux';
+ *
+ * // ...
+ *
+ * const dispatch = useDispatch();
+ * useEffect(() => {
+ *   dispatch(productsActions.add({ id: 1 }))
+ * }, [dispatch]);
+ * ```
+ *
+ * See: https://react-redux.js.org/next/api/hooks#usedispatch
+ */
+export const productsActions = productsSlice.actions;
+/*
+ * Export selectors to query state. For use with the `useSelector` hook.
+ *
+ * e.g.
+ * ```
+ * import { useSelector } from 'react-redux';
+ *
+ * // ...
+ *
+ * const entities = useSelector(selectAllProducts);
+ * ```
+ *
+ * See: https://react-redux.js.org/next/api/hooks#useselector
+ */
+const { selectAll, selectEntities } = productsAdapter.getSelectors();
+export const getProductsState = rootState => rootState[PRODUCTS_FEATURE_KEY];
+export const selectAllProducts = createSelector(getProductsState, selectAll);
+export const selectProductsEntities = createSelector(
+  getProductsState,
+  selectEntities,
+);
