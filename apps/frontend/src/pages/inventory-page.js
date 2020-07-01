@@ -5,6 +5,7 @@ import filterFactory, {
   numberFilter,
   textFilter,
 } from 'react-bootstrap-table2-filter';
+import paginationFactory from 'react-bootstrap-table2-paginator';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { fetchCategories } from '../store/slices/categories.slice';
@@ -90,7 +91,7 @@ export const InventoryPage = () => {
   ];
 
   useEffect(() => {
-    dispatch(fetchProducts());
+    dispatch(fetchProducts({ page: 1, limit: 30 }));
     dispatch(fetchCategories());
   }, []);
 
@@ -106,6 +107,12 @@ export const InventoryPage = () => {
         data={products}
         columns={columns}
         filter={filterFactory()}
+        pagination={paginationFactory({
+          onPageChange: (page, limit) =>
+            dispatch(fetchProducts({ page, limit })),
+          onSizePerPageChange: (limit, page) =>
+            dispatch(fetchProducts({ page, limit })),
+        })}
       />
     </div>
   );

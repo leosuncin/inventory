@@ -23,12 +23,13 @@ export const productsAdapter = createEntityAdapter();
  *   dispatch(fetchProducts())
  * }, [dispatch]);
  * ```
+ * @type import('@reduxjs/toolkit').AsyncThunk<any, {page: number; limit?: number}, any>
  */
 export const fetchProducts = createAsyncThunk(
   'products/fetchStatus',
-  async (_, thunkAPI) => {
+  async ({ page = 1, limit = 10 }, thunkAPI) => {
     try {
-      const resp = await fetch('/api/products');
+      const resp = await fetch(`/api/products?page=${page}&limit=${limit}`);
       const json = resp.json();
 
       return json;
@@ -55,7 +56,7 @@ export const productsSlice = createSlice({
         state.loadingStatus = 'loading';
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
-        productsAdapter.setAll(state, action.payload.docs);
+        productsAdapter.addMany(state, action.payload.docs);
         state.loadingStatus = 'loaded';
       })
       .addCase(fetchProducts.rejected, (state, action) => {
