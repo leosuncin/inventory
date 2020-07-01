@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Button } from 'react-bootstrap';
 import BootstrapTable from 'react-bootstrap-table-next';
 import filterFactory, { textFilter } from 'react-bootstrap-table2-filter';
 import { useDispatch, useSelector } from 'react-redux';
 
+import CreateCategoryForm from '../components/create-category-form';
 import {
   fetchCategories,
   selectAllCategories,
@@ -31,6 +33,7 @@ const columns = [
 ];
 
 export const CategoryPage = () => {
+  const [show, setShow] = useState(false);
   const dispatch = useDispatch();
   const categories = useSelector(selectAllCategories);
 
@@ -38,9 +41,22 @@ export const CategoryPage = () => {
     dispatch(fetchCategories());
   }, []);
 
+  function openModal() {
+    setShow(true);
+  }
+
   return (
     <div>
-      <h1>Lista de categorías</h1>
+      <h1 className="text-center">Lista de categorías</h1>
+      <Button
+        variant="primary"
+        onClick={openModal}
+        block
+        size="lg"
+        className="my-3"
+      >
+        Crear categoría
+      </Button>
       <BootstrapTable
         bootstrap4
         striped
@@ -51,6 +67,7 @@ export const CategoryPage = () => {
         noDataIndication={() => 'No hay categorías'}
         filter={filterFactory()}
       />
+      <CreateCategoryForm open={show} onClose={() => setShow(false)} />
     </div>
   );
 };
