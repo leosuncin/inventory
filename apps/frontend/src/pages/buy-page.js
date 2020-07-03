@@ -12,6 +12,7 @@ import {
 import {
   fetchProducts,
   getProductsState,
+  saveProduct,
 } from '../store/slices/products.slice';
 
 const priceFormatter = new Intl.NumberFormat('en-US', {
@@ -111,7 +112,28 @@ export const BuyPage = () => {
   }, []);
 
   async function addEntry(entry, isNew) {
-    setDetails([...details, { ...entry, id: nanoid() }]);
+    if (isNew) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        const { payload, type } = await dispatch(
+          saveProduct({
+            name: entry.product,
+            category: entry.category,
+          }),
+        );
+        if (type.endsWith('fulfilled')) {
+          setDetails([
+            ...details,
+            { ...entry, product: payload._id, id: nanoid() },
+          ]);
+        }
+      } catch (error) {
+        console.error(error.message);
+      }
+    } else {
+      setDetails([...details, { ...entry, id: nanoid() }]);
+    }
   }
 
   return (

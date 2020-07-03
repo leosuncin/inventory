@@ -38,6 +38,39 @@ export const fetchProducts = createAsyncThunk(
     }
   },
 );
+/**
+ * @type import('@reduxjs/toolkit').AsyncThunk<any, {name: string; category: string;}, any>
+ */
+export const saveProduct = createAsyncThunk(
+  'products/saveStatus',
+  async (data, thunkAPI) => {
+    try {
+      const resp = await fetch(`/api/products`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        mode: 'cors',
+      });
+
+      if (resp.status === 201) return resp.json();
+      else {
+        try {
+          const result = await resp.text();
+          const error = JSON.parse(result);
+
+          return thunkAPI.rejectWithValue(error.message);
+        } catch (error) {
+          return thunkAPI.rejectWithValue(resp.statusText);
+        }
+      }
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
 export const initialProductsState = productsAdapter.getInitialState({
   loadingStatus: 'not loaded',
   error: null,
@@ -62,6 +95,17 @@ export const productsSlice = createSlice({
       .addCase(fetchProducts.rejected, (state, action) => {
         state.loadingStatus = 'error';
         state.error = action.error.message;
+      })
+      .addCase(saveProduct.pending, state => {
+        state.loadingStatus = 'saving';
+      })
+      .addCase(saveProduct.fulfilled, (state, action) => {
+        productsAdapter.addOne(state, action.payload);
+        state.loadingStatus = 'saved';
+      })
+      .addCase(saveProduct.rejected, (state, action) => {
+        state.loadingStatus = 'error';
+        state.error = action.error;
       });
   },
 });
