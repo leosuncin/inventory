@@ -16,7 +16,15 @@ const defaultValues = {
   unitCost: 1,
 };
 export const AddEntryForm = props => {
-  const { handleSubmit, register, setValue, watch, control, reset } = useForm({
+  const {
+    handleSubmit,
+    register,
+    setValue,
+    watch,
+    control,
+    reset,
+    errors,
+  } = useForm({
     defaultValues,
   });
   const categories = useSelector(selectAllCategories);
@@ -28,11 +36,11 @@ export const AddEntryForm = props => {
   function handleChange(value, action) {
     switch (action.action) {
       case 'select-option':
-        setValue(action.name, value.value);
+        setValue(action.name, value.value, { shouldValidate: true });
         if (action.name === 'product') {
           const category = products.find(p => p._id === value.value).category;
           setSelectedProduct(value);
-          setValue('category', category._id);
+          setValue('category', category._id, { shouldValidate: true });
           // @ts-ignore
           setSelectedCategory({ value: category._id, label: category.name });
         }
@@ -42,20 +50,20 @@ export const AddEntryForm = props => {
         break;
 
       case 'clear':
-        setValue(action.name, null);
+        setValue(action.name, null, { shouldValidate: true });
         if (action.name === 'product') {
           setSelectedProduct(null);
           if (!isNewProduct) {
             // @ts-ignore
             setSelectedCategory(null);
-            setValue('category', null);
+            setValue('category', null, { shouldValidate: true });
           }
           setIsNewProduct(false);
         }
         break;
 
       case 'create-option':
-        setValue(action.name, value.label);
+        setValue(action.name, value.label, { shouldValidate: true });
         setIsNewProduct(true);
         setSelectedProduct(value);
         break;
@@ -81,7 +89,7 @@ export const AddEntryForm = props => {
           <Controller
             name="product"
             control={control}
-            rules={{ required: true }}
+            rules={{ required: 'El producto es requerido' }}
             render={props => (
               <CreatableSelect
                 {...props}
@@ -95,13 +103,18 @@ export const AddEntryForm = props => {
               />
             )}
           />
+          {errors.product && (
+            <Form.Text role="alert" className="text-danger">
+              {errors.product?.message}
+            </Form.Text>
+          )}
         </Form.Group>
         <Form.Group controlId="category-input" as={Col}>
           <Form.Label>Categoría</Form.Label>
           <Controller
             name="category"
             control={control}
-            rules={{ required: true }}
+            rules={{ required: 'La categoría es requerida' }}
             render={props => (
               <Select
                 {...props}
@@ -115,6 +128,11 @@ export const AddEntryForm = props => {
               />
             )}
           />
+          {errors.category && (
+            <Form.Text role="alert" className="text-danger">
+              {errors.category?.message}
+            </Form.Text>
+          )}
         </Form.Group>
       </Form.Row>
       <Form.Row>
@@ -126,8 +144,24 @@ export const AddEntryForm = props => {
             inputMode="numeric"
             pattern="[0-9]+"
             defaultValue="1"
-            ref={register}
+            ref={register({
+              required: 'La cantidad de unidades es requerida',
+              min: {
+                value: 0,
+                message: 'La cantidad de unidades debe ser positiva',
+              },
+              pattern: {
+                value: /^\d+$/,
+                message: 'La cantidad de unidades debe ser un número entero',
+              },
+            })}
+            isInvalid={Boolean(errors.quantityOrder)}
           />
+          {errors.quantityOrder && (
+            <Form.Text role="alert" className="text-danger">
+              {errors.quantityOrder?.message}
+            </Form.Text>
+          )}
         </Form.Group>
         <Form.Group controlId="unit-cost-input" as={Col}>
           <Form.Label>Costo unitario</Form.Label>
@@ -141,9 +175,26 @@ export const AddEntryForm = props => {
               inputMode="decimal"
               pattern="[0-9]+(?:\.[0-9]{0,2})?"
               defaultValue="1"
-              ref={register}
+              ref={register({
+                required: 'El costo unitario es requerido',
+                min: {
+                  value: 0,
+                  message: 'El costo unitario debe ser positivo',
+                },
+                pattern: {
+                  value: /^\d+(?:\.\d{0,2})?$/,
+                  message:
+                    'El costo unitario debe ser un número con dos decimales máximo',
+                },
+              })}
+              isInvalid={Boolean(errors.unitCost)}
             />
           </InputGroup>
+          {errors.unitCost && (
+            <Form.Text role="alert" className="text-danger">
+              {errors.unitCost?.message}
+            </Form.Text>
+          )}
         </Form.Group>
       </Form.Row>
       <Form.Group>
