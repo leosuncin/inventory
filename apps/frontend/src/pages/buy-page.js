@@ -1,6 +1,7 @@
 import { nanoid } from '@reduxjs/toolkit';
 import React, { useEffect, useState } from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
+import cellEditFactory from 'react-bootstrap-table2-editor';
 import { useDispatch, useSelector } from 'react-redux';
 
 import AddEntryForm from '../components/add-entry-form';
@@ -31,21 +32,76 @@ export const BuyPage = () => {
       dataField: 'product',
       text: 'Producto',
       formatter: cell => productsMap[cell]?.name || cell,
+      editable: false,
     },
     {
       dataField: 'category',
       text: 'Categoría',
       formatter: cell => categoriesMap[cell]?.name || cell,
+      editable: false,
     },
     {
       dataField: 'quantityOrder',
       text: 'Cantidad de unidades',
+      type: 'number',
       formatter: quantityFormatter.format,
+      validator(newValue) {
+        if (!newValue) {
+          return {
+            valid: false,
+            message: 'La cantidad es requerida',
+          };
+        }
+        if (!Number.isInteger(parseFloat(newValue))) {
+          return {
+            valid: false,
+            message: 'La cantidad debe ser un número entero',
+          };
+        }
+        if (parseInt(newValue) < 0) {
+          return {
+            valid: false,
+            message: 'La cantidad debe ser positiva',
+          };
+        }
+
+        return true;
+      },
     },
     {
       dataField: 'unitCost',
       text: 'Costo Unitario',
+      type: 'number',
       formatter: priceFormatter.format,
+      validator(newValue) {
+        if (!newValue) {
+          return {
+            valid: false,
+            message: 'El costo unitario es requerido',
+          };
+        }
+        if (!Number.isFinite(parseFloat(newValue))) {
+          return {
+            valid: false,
+            message: 'El costo unitario debe ser un número real',
+          };
+        }
+        if (parseFloat(newValue) < 0) {
+          return {
+            valid: false,
+            message: 'El costo unitario debe ser positivo',
+          };
+        }
+        if (!/^\d+(\.\d{0,2})?$/.test(newValue)) {
+          return {
+            valid: false,
+            message:
+              'El costo unitario deber ser un número con dos decimales máximo',
+          };
+        }
+
+        return true;
+      },
     },
   ];
 
@@ -54,7 +110,7 @@ export const BuyPage = () => {
     dispatch(fetchProducts({ page: 1 }));
   }, []);
 
-  function addEntry(entry, isNew) {
+  async function addEntry(entry, isNew) {
     setDetails([...details, { ...entry, id: nanoid() }]);
   }
 
@@ -68,6 +124,7 @@ export const BuyPage = () => {
         keyField="id"
         columns={columns}
         data={details}
+        cellEdit={cellEditFactory({ mode: 'click' })}
       />
     </div>
   );
