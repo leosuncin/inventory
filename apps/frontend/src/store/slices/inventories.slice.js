@@ -25,13 +25,46 @@ export const inventoriesAdapter = createEntityAdapter();
  * ```
  */
 export const fetchInventories = createAsyncThunk(
-  'inventories/fetchStatus',
+  'fetchStatus',
   async (_, thunkAPI) => {
     try {
       const resp = await fetch('/api/inventories');
       const json = resp.json();
 
       return json;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message);
+    }
+  },
+);
+/**
+ * @type import('@reduxjs/toolkit').AsyncThunk<any, {product: string; category: string; quantityOrder: number; unitCost: number; type: 'IN'}, any>
+ */
+export const addEntry = createAsyncThunk(
+  'inventories/addEntry',
+  async (entry, thunkAPI) => {
+    try {
+      const resp = await fetch('/api/inventories', {
+        method: 'POST',
+        body: JSON.stringify(entry),
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        mode: 'cors',
+      });
+
+      if (resp.status === 201) return resp.json();
+      else {
+        try {
+          const result = await resp.text();
+          const error = JSON.parse(result);
+
+          return thunkAPI.rejectWithValue(error.message);
+        } catch (error) {
+          return thunkAPI.rejectWithValue(resp.statusText);
+        }
+      }
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message);
     }
@@ -55,10 +88,21 @@ export const inventoriesSlice = createSlice({
         state.loadingStatus = 'loading';
       })
       .addCase(fetchInventories.fulfilled, (state, action) => {
-        inventoriesAdapter.setAll(state, action.payload.docs);
+        inventoriesAdapter.addMany(state, action.payload.docs);
         state.loadingStatus = 'loaded';
       })
       .addCase(fetchInventories.rejected, (state, action) => {
+        state.loadingStatus = 'error';
+        state.error = action.error.message;
+      })
+      .addCase(addEntry.pending, state => {
+        state.loadingStatus = 'adding';
+      })
+      .addCase(addEntry.fulfilled, (state, action) => {
+        inventoriesAdapter.addOne(state, action.payload);
+        state.loadingStatus = 'added';
+      })
+      .addCase(addEntry.rejected, (state, action) => {
         state.loadingStatus = 'error';
         state.error = action.error.message;
       });

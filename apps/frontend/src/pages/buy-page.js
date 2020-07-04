@@ -1,5 +1,6 @@
 import { nanoid } from '@reduxjs/toolkit';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Button, InputGroup, Overlay, Popover, Spinner } from 'react-bootstrap';
 import BootstrapTable from 'react-bootstrap-table-next';
 import cellEditFactory from 'react-bootstrap-table2-editor';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,6 +10,7 @@ import {
   fetchCategories,
   getCategoriesState,
 } from '../store/slices/categories.slice';
+import { addEntry } from '../store/slices/inventories.slice';
 import {
   fetchProducts,
   getProductsState,
@@ -25,6 +27,9 @@ const quantityFormatter = new Intl.NumberFormat('en-US', {
 });
 export const BuyPage = () => {
   const [details, setDetails] = useState([]);
+  const target = useRef(null);
+  const [showPopover, setShowPopover] = useState(false);
+  const [progress, setProgress] = useState(0);
   const dispatch = useDispatch();
   const { entities: categoriesMap } = useSelector(getCategoriesState);
   const { entities: productsMap } = useSelector(getProductsState);
@@ -111,7 +116,7 @@ export const BuyPage = () => {
     dispatch(fetchProducts({ page: 1 }));
   }, []);
 
-  async function addEntry(entry, isNew) {
+  async function addDetail(entry, isNew) {
     if (isNew) {
       try {
         // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
@@ -135,10 +140,28 @@ export const BuyPage = () => {
       setDetails([...details, { ...entry, id: nanoid() }]);
     }
   }
+  async function saveEntries() {
+    setShowPopover(true);
+    for (const d of details) {
+      await dispatch(
+        addEntry({
+          product: d.product,
+          category: d.category,
+          quantityOrder: parseInt(d.quantityOrder),
+          unitCost: parseFloat(d.unitCost),
+          type: 'IN',
+        }),
+      );
+      setProgress(count => count + 1);
+    }
+    setShowPopover(false);
+    setDetails([]);
+    setProgress(0);
+  }
 
   return (
     <div>
-      <AddEntryForm onAddEntry={addEntry} />
+      <AddEntryForm onAddEntry={addDetail} />
       <BootstrapTable
         bootstrap4
         striped
@@ -148,6 +171,35 @@ export const BuyPage = () => {
         data={details}
         cellEdit={cellEditFactory({ mode: 'click' })}
       />
+      <InputGroup>
+        <Button ref={target} onClick={saveEntries} disabled={showPopover}>
+          Ingresar
+        </Button>
+        <InputGroup.Append>
+          <InputGroup.Text>
+            {priceFormatter.format(
+              details.reduce(
+                (total, detail) =>
+                  total +
+                  parseInt(detail.quantityOrder) * parseFloat(detail.unitCost),
+                0,
+              ),
+            )}
+          </InputGroup.Text>
+        </InputGroup.Append>
+      </InputGroup>
+      <Overlay target={target.current} placement="top" show={showPopover}>
+        <Popover id="popover-basic">
+          <Popover.Title as="h3">
+            Ingresando entrada {progress} de {details.length}
+          </Popover.Title>
+          <Popover.Content>
+            <Spinner animation="border" variant="info" role="status">
+              <span className="sr-only">Ingresando...</span>
+            </Spinner>
+          </Popover.Content>
+        </Popover>
+      </Overlay>
     </div>
   );
 };
